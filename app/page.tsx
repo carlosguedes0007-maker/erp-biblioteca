@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import BotaoReset from './components/BotaoReset';
-import BotaoLimpeza from './components/BotaoLimpeza'; // NOVO IMPORT
+import BotaoLimpeza from './components/BotaoLimpeza';
+
+// ISSO DESLIGA A "FOTO VELHA" E FORÇA O DADO AO VIVO NA VERCEL
+export const dynamic = 'force-dynamic'; 
 
 const prisma = new PrismaClient();
 
-// Como é um Server Component, o Next.js roda isso no backend com segurança
 export default async function Dashboard() {
   // 1. Busca total de clientes
   const totalClientes = await prisma.cliente.count();
@@ -24,7 +26,7 @@ export default async function Dashboard() {
   });
   const faturamentoDia = vendasHoje._sum.total_venda || 0;
 
-  // 4. NOVO: Calcula o total geral de livros vendidos (soma das quantidades)
+  // 4. Calcula o total geral de livros vendidos (soma das quantidades)
   const itensVendidos = await prisma.itemVenda.aggregate({
     _sum: { quantidade: true }
   });
@@ -42,7 +44,6 @@ export default async function Dashboard() {
           </p>
         </div>
         
-        {/* CARD ATUALIZADO AQUI */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-blue-500">
           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Livros Vendidos</h3>
           <p className="text-3xl font-extrabold text-gray-900">{totalLivrosVendidos}</p>
