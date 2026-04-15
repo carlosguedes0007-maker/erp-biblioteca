@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Força o navegador a usar o tema claro para garantir o contraste perfeito do ERP */
+:root {
+  color-scheme: light;
+}

@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           String   @id @default(uuid())
+  nome         String
+  nivel_acesso String   
+  senha_hash   String
+  createdAt    DateTime @default(now())
+}
+
+model Livro {
+  id                 String       @id @default(uuid())
+  titulo             String
+  autor              String
+  categoria_genero   String
+  preco              Decimal
+  quantidade_estoque Int
+  codigo_barras      String       @unique
+  updatedAt          DateTime     @default(now()) @updatedAt // NOVO: Grava a última vez que o estoque mudou
+  itens_venda        ItemVenda[]
+}
+
+model Cliente {
+  id               String   @id @default(uuid())
+  nome_completo    String
+  telefone         String?
+  data_cadastro    DateTime @default(now())
+  saldo_financeiro Decimal  @default(0) 
+  vendas           Venda[]
+}
+
+model Caixa {
+  id               String   @id @default(uuid())
+  data             DateTime @default(now())
+  valor_abertura   Decimal
+  valor_fechamento Decimal?
+  status           String   @default("aberto") 
+}
+
+model Venda {
+  id               String      @id @default(uuid())
+  cliente_id       String?
+  // NOVO: onDelete SetNull preserva o dinheiro da venda mesmo se o cliente for apagado na faxina
+  cliente          Cliente?    @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
+  data_venda       DateTime    @default(now())
+  total_venda      Decimal
+  valor_pago       Decimal     @default(0)
+  troco            Decimal     @default(0)
+  status_pagamento String      @default("Pago") 
+  metodo_pagamento String      
+  itens            ItemVenda[]
+}
+
+model ItemVenda {
+  id             String  @id @default(uuid())
+  venda_id       String
+  venda          Venda   @relation(fields: [venda_id], references: [id])
+  livro_id       String?
+  // NOVO: onDelete SetNull preserva o item no recibo mesmo se o livro for apagado
+  livro          Livro?  @relation(fields: [livro_id], references: [id], onDelete: SetNull) 
+  quantidade     Int
+  preco_unitario Decimal
+}
